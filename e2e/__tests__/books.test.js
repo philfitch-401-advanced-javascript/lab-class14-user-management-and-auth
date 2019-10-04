@@ -24,19 +24,18 @@ describe('Books API', () => {
       .send(book)
       .expect(200)
       .then(({ body }) => body);
-  };
+  }
 
   it('post a book for this user', () => {
-
     return postBook(book).then(book => {
-        expect(book.owner).toBe(user._id);
-        expect(book).toMatchInlineSnapshot(
-          {
-            _id: expect.any(String),
-            owner: expect.any(String)
-          },
+      expect(book.owner).toBe(user._id);
+      expect(book).toMatchInlineSnapshot(
+        {
+          _id: expect.any(String),
+          owner: expect.any(String)
+        },
 
-          `
+        `
           Object {
             "__v": 0,
             "_id": Any<String>,
@@ -46,8 +45,8 @@ describe('Books API', () => {
             "year": 1851,
           }
         `
-        );
-      });
+      );
+    });
   });
 
   it('gets a list of books', () => {
@@ -58,8 +57,8 @@ describe('Books API', () => {
     };
     return Promise.all([
       postBook(firstBook),
-      postBook({ title: 'book 2', author: 'Author', year: 2019}),
-      postBook({ title: 'book 3', author: 'Author', year: 2019})
+      postBook({ title: 'book 2', author: 'Author', year: 2019 }),
+      postBook({ title: 'book 3', author: 'Author', year: 2019 })
     ])
       .then(() => {
         return request.get('/api/books').expect(200);
@@ -75,15 +74,40 @@ describe('Books API', () => {
       });
   });
 
+  it('gets a book by id', () => {
+    return postBook(book)
+      .then(book => {
+        return request.get(`/api/books/${book._id}`).expect(200);
+      })
+      .then(({ body }) => {
+        expect(body).toMatchInlineSnapshot(
+          { _id: expect.any(String) },
+          `
+          Object {
+            "__v": 0,
+            "_id": Any<String>,
+            "author": "Herman Melville",
+            "owner": "5d97b8584990f74442942932",
+            "title": "Moby Dick",
+            "year": 1851,
+          }
+        `
+        );
+      });
+  });
+
   it('deletes a book', () => {
     return postBook(book).then(book => {
-      expect(book.owner).toBe(user._id)
-      .then(book => {
-        return request.delete(`/api/books/${book._id}`).expect(200);
-
-      })
+      return request
+        .delete(`/api/books/${book._id}`)
+        .set('Authorization', user.token)
+        .expect(200);
     });
   });
 
-
+  it("doesn't delete if no authorization", () => {
+    return postBook(book).then(book => {
+      return request.delete(`/api/books/${book.id}`).expect(401);
+    });
+  });
 });
