@@ -17,15 +17,20 @@ describe('Books API', () => {
     year: 1851
   };
 
-  it.only('post a book for this user', () => {
+  function postBook(book) {
     return request
       .post('/api/books')
       .set('Authorization', user.token)
       .send(book)
       .expect(200)
-      .then(({ body }) => {
-        expect(body.owner).toBe(user._id);
-        expect(body).toMatchInlineSnapshot(
+      .then(({ body }) => body);
+  };
+
+  it('post a book for this user', () => {
+
+    return postBook(book).then(book => {
+        expect(book.owner).toBe(user._id);
+        expect(book).toMatchInlineSnapshot(
           {
             _id: expect.any(String),
             owner: expect.any(String)
@@ -44,4 +49,41 @@ describe('Books API', () => {
         );
       });
   });
+
+  it('gets a list of books', () => {
+    const firstBook = {
+      title: 'book 1',
+      author: 'Author',
+      year: 2019
+    };
+    return Promise.all([
+      postBook(firstBook),
+      postBook({ title: 'book 2', author: 'Author', year: 2019}),
+      postBook({ title: 'book 3', author: 'Author', year: 2019})
+    ])
+      .then(() => {
+        return request.get('/api/books').expect(200);
+      })
+      .then(({ body }) => {
+        expect(body.length).toBe(3);
+        expect(body[0]).toEqual({
+          _id: expect.any(String),
+          author: 'Author',
+          title: firstBook.title,
+          year: firstBook.year
+        });
+      });
+  });
+
+  it('deletes a book', () => {
+    return postBook(book).then(book => {
+      expect(book.owner).toBe(user._id)
+      .then(book => {
+        return request.delete(`/api/books/${book._id}`).expect(200);
+
+      })
+    });
+  });
+
+
 });
