@@ -81,13 +81,16 @@ describe('Books API', () => {
       })
       .then(({ body }) => {
         expect(body).toMatchInlineSnapshot(
-          { _id: expect.any(String) },
+          { 
+            _id: expect.any(String), 
+            owner: expect.any(String) 
+          },
           `
           Object {
             "__v": 0,
             "_id": Any<String>,
             "author": "Herman Melville",
-            "owner": "5d97b8584990f74442942932",
+            "owner": Any<String>,
             "title": "Moby Dick",
             "year": 1851,
           }
@@ -110,4 +113,29 @@ describe('Books API', () => {
       return request.delete(`/api/books/${book.id}`).expect(401);
     });
   });
+
+  it('owner can update a book', () => {
+    return postBook(book).then(book => {
+      book.year = 2020
+      return request
+        .put(`/api/books/${book._id}`)
+        .send(book)
+        .set('Authorization', user.token)
+        .expect(200)
+      })
+      .then(({ body }) => {
+        expect(body.year).toBe(2020);
+      })
+  })
+
+  it('non-owner cannot update a book', () => {
+    return postBook(book).then(book => {
+      book.year = 2020
+      return request
+        .put(`/api/books/${book._id}`)
+        .send(book)
+        .expect(401)
+      })
+  })
+
 });
