@@ -2,7 +2,8 @@ const request = require('./request');
 
 const testUser = {
   email: 'me@me.com',
-  password: 'abc'
+  password: 'abc',
+  favorites: []
 };
 
 function signupUser(user = testUser) {
