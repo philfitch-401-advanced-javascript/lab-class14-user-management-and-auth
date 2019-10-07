@@ -29,21 +29,20 @@ describe('Me API', () => {
 
   function addFavoriteBook(book) {
     return request
-      .put(`/api/me/favorites/${book.id}`)
+      .put(`/api/me/favorites/${book._id}`)
       .set('Authorization', user.token)
       .expect(200)
+      .then(({ body }) => body);
   }
 
   it('adds a book to user favorites', () => {
-    return postBook(book1).then(book => {
-      return request
-        .put(`/api/me/favorites/${book._id}`)
-        .set('Authorization', user.token)
-        .expect(200)
+    return postBook(book1)
+      .then(book => {
+      return addFavoriteBook(book)
+      .then(body => {
+        expect(body.favorites[0]).toEqual(book._id);
+      });
     })
-    .then(({ body }) => body => {
-      expect(body[0]).toEqual(book._id);
-    });
   });
 
   it.skip('returns list of user favorites', () => {
@@ -64,8 +63,9 @@ describe('Me API', () => {
       })
     .then(() => {
       return request
-        .get(`/api/me/favorites`).expect(200)
-        .set('Authorization', user.token);
+        .get(`/api/me/favorites`)
+        .set('Authorization', user.token)
+        .expect(200);
       })
     .then(({ body }) => {
       console.log(body)
