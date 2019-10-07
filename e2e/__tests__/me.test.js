@@ -29,19 +29,16 @@ describe('Me API', () => {
 
   function addFavoriteBook(book) {
     return request
-      .put(`api/me/favorites/${book.id}`)
+      .put(`/api/me/favorites/${book.id}`)
       .set('Authorization', user.token)
-      .send(user)
       .expect(200)
   }
 
   it('adds a book to user favorites', () => {
-    console.log(user)
     return postBook(book1).then(book => {
       return request
         .put(`/api/me/favorites/${book._id}`)
         .set('Authorization', user.token)
-        .send(user)
         .expect(200)
     })
     .then(({ body }) => body => {
@@ -49,8 +46,31 @@ describe('Me API', () => {
     });
   });
 
-  it('returns list of user favorites', () => {
-
+  it.skip('returns list of user favorites', () => {
+    return Promise.all([
+      postBook({ title: 'book 1', author: 'Author', year: 2019 }),
+      postBook({ title: 'book 2', author: 'Author', year: 2019 }),
+      postBook({ title: 'book 3', author: 'Author', year: 2019 })
+    ])
+    // .then(() => {
+    //   return request.get('/api/books').expect(200)
+    // })
+    .then(({ body }) => body => {
+      console.log(body)
+      return request
+        .put(`/api/me/favorites/${body[0]._id}`)
+        .set('Authorization', user.token)
+        .expect(200)
+      })
+    .then(() => {
+      return request
+        .get(`/api/me/favorites`).expect(200)
+        .set('Authorization', user.token);
+      })
+    .then(({ body }) => {
+      console.log(body)
+      expect(body.length).toEqual(3);
+    })
   })
 
 });
