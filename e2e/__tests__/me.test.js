@@ -45,21 +45,18 @@ describe('Me API', () => {
     })
   });
 
-  it.skip('returns list of user favorites', () => {
+  it('returns list of user favorites', () => {
     return Promise.all([
       postBook({ title: 'book 1', author: 'Author', year: 2019 }),
       postBook({ title: 'book 2', author: 'Author', year: 2019 }),
       postBook({ title: 'book 3', author: 'Author', year: 2019 })
     ])
-    // .then(() => {
-    //   return request.get('/api/books').expect(200)
-    // })
-    .then(({ body }) => body => {
-      console.log(body)
-      return request
-        .put(`/api/me/favorites/${body[0]._id}`)
-        .set('Authorization', user.token)
-        .expect(200)
+    .then(body => {
+      return Promise.all([
+        addFavoriteBook(body[0]),
+        addFavoriteBook(body[1]),
+        addFavoriteBook(body[2]),
+        ])
       })
     .then(() => {
       return request
@@ -68,7 +65,6 @@ describe('Me API', () => {
         .expect(200);
       })
     .then(({ body }) => {
-      console.log(body)
       expect(body.length).toEqual(3);
     })
   })
