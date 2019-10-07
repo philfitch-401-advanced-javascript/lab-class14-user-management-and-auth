@@ -69,4 +69,21 @@ describe('Me API', () => {
     })
   })
 
+  it('deletes a book from favorites', () => {
+    return postBook(book1)
+    .then(body => {
+      return addFavoriteBook(body)
+      .then((updatedUser) => {
+        expect(updatedUser.favorites[0]).toEqual(body._id)
+        return request
+          .delete(`/api/me/favorites/${body._id}`)
+          .set('Authorization', user.token)
+          .expect(200);
+      })
+      .then(({ body }) => {
+        expect(user.favorites).toBeUndefined;
+      })
+    })
+  })
+
 });
