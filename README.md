@@ -5,8 +5,8 @@
 ### Phil Fitch
 
 ### Links and Resources
-* [submission PR](http://xyz.com)
-* [travis](http://xyz.com)
+* [submission PR](https://github.com/philfitch-401-advanced-javascript/lab-class14-user-management-and-auth/pull/1)
+* [travis](https://travis-ci.com/philfitch-401-advanced-javascript/lab-class14-user-management-and-auth)
 * [back-end](http://xyz.com) (when applicable)
 * [front-end](http://xyz.com) (when applicable)
 
