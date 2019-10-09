@@ -1,7 +1,7 @@
 const request = require('../request');
 const { dropCollection } = require('../db');
 const jwt = require('jsonwebtoken');
-const { signupUser } = require('../data-helpers');
+const { signupUser, signupAdmin } = require('../data-helpers');
 
 describe('Auth API', () => {
 
@@ -12,11 +12,22 @@ describe('Auth API', () => {
     password: 'abc'
   };
 
+  const adminUser = {
+    email: 'admin@me.com',
+    password: 'abc'
+  };
+
   let user = null;
+  let admin = null;
 
   beforeEach(() => {
     return signupUser(testUser)
       .then(newUser => user = newUser);
+  });
+
+  beforeEach(() => {
+    return signupAdmin(adminUser)
+      .then(newAdmin => admin = newAdmin);
   });
 
   it('signs up a user', () => {
@@ -95,5 +106,51 @@ describe('Auth API', () => {
       .set('Authorization', jwt.sign({ foo: 'bar' }, 'shhhhh'))
       .expect(401);
   });
+
+
+  function addRole(newAdmin, role) {
+    return request
+      .put(`/api/auth/users/${newAdmin._id}/roles/${role}`)
+      .set('Authorization', admin.token)
+      .expect(200)
+      .then(({ body }) => body);
+  }
+
+  it('adds role to user of :id', () => {
+    return addRole(user, 'admin')
+      .then(body => {
+          expect(body.roles[0]).toEqual('admin');
+      })
+  });
+
+  it('deletes role from user of :id', () => {
+    return addRole(user, 'admin')
+    .then(body => {
+      return request
+        .delete(`/api/auth/users/${body._id}/roles/'admin'`)
+        .set('Authorization', admin.token)
+        .expect(200);
+    })
+    .then(({ body }) => {
+      expect(user.roles).toEqual([]);
+    })
+  })
+
+  it('disallows user from removing own admin role', () => {
+    return request
+      .delete(`/api/auth/users/${admin._id}/roles/'admin'`)
+      .set('Authorization', admin.token)
+      .expect(401);
+  })
+
+  it('returns _id, email, and roles of all users', () => {
+    return request
+      .get('/api/auth/users')
+      .set('Authorization', admin.token)
+      .expect(200)
+    .then(({ body })=> {
+      expect(body.length).toBe(2);
+    })
+  })
 
 });
