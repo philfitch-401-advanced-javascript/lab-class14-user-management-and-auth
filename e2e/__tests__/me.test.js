@@ -81,7 +81,7 @@ describe('Me API', () => {
           .expect(200);
       })
       .then(({ body }) => {
-        expect(body.favorites).toBeUndefined;
+        expect(user.favorites).toEqual([]);
       })
     })
   })

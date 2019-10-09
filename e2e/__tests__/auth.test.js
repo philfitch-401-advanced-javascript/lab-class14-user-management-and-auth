@@ -113,7 +113,6 @@ describe('Auth API', () => {
       .put(`/api/auth/users/${newAdmin._id}/roles/${role}`)
       .set('Authorization', admin.token)
       .expect(200)
-
       .then(({ body }) => body);
   }
 
@@ -126,23 +125,32 @@ describe('Auth API', () => {
 
   it('deletes role from user of :id', () => {
     return addRole(user, 'admin')
-    .then(updatedUser => {
+    .then(body => {
       return request
-        .delete(`/api/auth/users/${user._id}/roles/'admin'`)
+        .delete(`/api/auth/users/${body._id}/roles/'admin'`)
         .set('Authorization', admin.token)
         .expect(200);
     })
     .then(({ body }) => {
-      expect(body.favorites).toEqual([]);
+      expect(user.roles).toEqual([]);
     })
   })
 
   it('disallows user from removing own admin role', () => {
-
+    return request
+      .delete(`/api/auth/users/${admin._id}/roles/'admin'`)
+      .set('Authorization', admin.token)
+      .expect(401);
   })
 
   it('returns _id, email, and roles of all users', () => {
-
+    return request
+      .get('/api/auth/users')
+      .set('Authorization', admin.token)
+      .expect(200)
+    .then(({ body }) => {
+      expect(body.length).toBe(2);
+    })
   })
 
 });
