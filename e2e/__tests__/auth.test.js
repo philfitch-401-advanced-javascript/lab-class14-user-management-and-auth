@@ -148,7 +148,7 @@ describe('Auth API', () => {
       .get('/api/auth/users')
       .set('Authorization', admin.token)
       .expect(200)
-    .then(({ body }) => {
+    .then(({ body })=> {
       expect(body.length).toBe(2);
     })
   })
