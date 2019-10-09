@@ -125,7 +125,16 @@ describe('Auth API', () => {
   });
 
   it('deletes role from user of :id', () => {
-
+    return addRole(user, 'admin')
+    .then(updatedUser => {
+      return request
+        .delete(`/api/auth/users/${user._id}/roles/'admin'`)
+        .set('Authorization', admin.token)
+        .expect(200);
+    })
+    .then(({ body }) => {
+      expect(body.favorites).toEqual([]);
+    })
   })
 
   it('disallows user from removing own admin role', () => {
