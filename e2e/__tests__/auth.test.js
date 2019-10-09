@@ -107,4 +107,33 @@ describe('Auth API', () => {
       .expect(401);
   });
 
+
+  function addRole(newAdmin, role) {
+    return request
+      .put(`/api/auth/users/${newAdmin._id}/roles/${role}`)
+      .set('Authorization', admin.token)
+      .expect(200)
+
+      .then(({ body }) => body);
+  }
+
+  it('adds role to user of :id', () => {
+    return addRole(user, 'admin')
+      .then(body => {
+          expect(body.roles[0]).toEqual('admin');
+      })
+  });
+
+  it('deletes role from user of :id', () => {
+
+  })
+
+  it('disallows user from removing own admin role', () => {
+
+  })
+
+  it('returns _id, email, and roles of all users', () => {
+
+  })
+
 });

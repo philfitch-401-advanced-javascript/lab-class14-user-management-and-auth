@@ -4,7 +4,6 @@ const User = require('../lib/models/user');
 const testUser = {
   email: 'me@me.com',
   password: 'abc',
-  favorites: []
 };
 
 const adminUser = {
@@ -15,6 +14,7 @@ const adminUser = {
 
 
 function signupUser(user = testUser) {
+  user.roles = [];
   return request
     .post('/api/auth/signup')
     .send(user)
